@@ -79,6 +79,7 @@
     <Content Include="CodeTemplate\CY_System.Service\Controllers\OrderController.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Compile Include="CodeTemplate\CY_System.DomainStandard\Repository\Class1.cs" />
     <Compile Include="CommonMaker.cs" />
     <Compile Include="CommonSettings.cs" />
     <Compile Include="DBConfig.cs" />
@@ -145,8 +146,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="CodeTemplate\CY_System.DomainStandard\Repository\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
