@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CY_System.CodeBuilder
@@ -38,8 +40,18 @@ namespace CY_System.CodeBuilder
             LoadData();
 
             BindDDL();
+
+            //初始化控件的一些值
+            InitControls();
         }
 
+        private void InitControls()
+        {
+            this.statusStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
+            this.toolStripStatusLabel2.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.toolStripStatusLabel2.Text = "";
+            this.toolStripProgressBar1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+        }
 
         public Dictionary<string, string> GetTemplate2ProjectDict()
         {
@@ -287,17 +299,37 @@ namespace CY_System.CodeBuilder
 
         public event GenerateHandler Generate;
 
-        public delegate bool GenerateHandler(List<Tuple<string, string>> TableNames, Dictionary<string, string> Projects);
-        private void button1_Click(object sender, EventArgs e)
+        public delegate Task<bool> GenerateHandler(List<Tuple<string, string>> tableNames, Dictionary<string, string> projects, IProgress<int> progress);
+        private async void button1_Click(object sender, EventArgs e)
         {
+            btnGenterate.Enabled = false;
+            btnClose.Enabled = false;
+            //进度获取
+            toolStripProgressBar1.Maximum = 3;// tableNames.Count;
+            Progress<int> progress = new Progress<int>();
+            progress.ProgressChanged += (sd, intValue) => {
+                toolStripProgressBar1.Value = intValue;
+            };
+            await GenerateCodeFiles(progress);
+            btnGenterate.Enabled = true;
+            btnClose.Enabled = true;
+        }
+
+        private async Task GenerateCodeFiles(IProgress<int> progInt)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            toolStripStatusLabel2.Text = "生成中...";
             frmLoading loadingBox = new frmLoading();
+            loadingBox.TopMost = true;
+            loadingBox.StartPosition = FormStartPosition.CenterScreen;
             loadingBox.Show();
+            Application.DoEvents();
             //1表名 2连接字符串
             List<Tuple<string, string>> list = new List<Tuple<string, string>>(10);
 
             //模板项目对应表
             //Dictionary<string, string> Template2Project = new Dictionary<string, string>(10);
-
 
             foreach (var str in DBSettings.SelectTables)
             {
@@ -306,8 +338,12 @@ namespace CY_System.CodeBuilder
 
             //trvDBInfo.selected
             //事件emit
-            Generate(list, GetTemplate2ProjectDict());
+            await Generate(list, GetTemplate2ProjectDict(),progInt);
             loadingBox.Close();
+            sw.Stop();
+            toolStripStatusLabel1.Text = "耗时:" + sw.Elapsed.TotalSeconds.ToString("f4") + "秒";
+            toolStripStatusLabel2.Text = "生成完毕!";
+            sw.Stop();
             //MessageBox.Show("生成完毕!");
         }
 

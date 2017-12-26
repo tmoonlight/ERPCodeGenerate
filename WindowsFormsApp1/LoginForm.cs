@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 
@@ -219,7 +220,7 @@ namespace CY_System.CodeBuilder
             {
                 var gen = new frmGenerator();
                 //传递事件到外层
-                gen.Generate += (list, dict) => Generate(list, dict);
+                gen.Generate += (list, dict, p) => Generate(list, dict, p);
                 gen.Show();
                 this.Hide();
             }
@@ -263,7 +264,7 @@ namespace CY_System.CodeBuilder
 
         public event GenerateHandler Generate;
 
-        public delegate bool GenerateHandler(List<Tuple<string, string>> TableNames, Dictionary<string, string> dict);
+        public delegate Task<bool> GenerateHandler(List<Tuple<string, string>> TableNames, Dictionary<string, string> dict, IProgress<int> progress);
 
     }
 }

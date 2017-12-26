@@ -9,6 +9,7 @@ using CY_System.CodeBuilder;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace VSIXProject4
 {
@@ -84,6 +85,11 @@ namespace VSIXProject4
             Instance = new Command1(package);
         }
 
+        public const string ContentRootPath = @"C:\CYSystemCodeGenerator\";
+
+
+
+        LoginForm SingleLoginForm = null;
         /// <summary>
         /// This function is the callback used to execute the command when the menu item is clicked.
         /// See the constructor to see how the menu item is associated with this function using
@@ -96,13 +102,26 @@ namespace VSIXProject4
             DTE dte = (DTE)ServiceProvider.GetService(typeof(DTE));
             CommonSettings.VSProjects.Clear();
             CommonSettings.TProjects.Clear();
+            //var folderStr = dte.Solution.Properties.Settings.Default.SF_GUID;
             //初始化必要的变量
+
             foreach (EnvDTE.Project proj in dte.Solution.Projects)
             {
-                CommonSettings.VSProjects.Add(proj.Name, proj.Name);
+                if (proj.Kind != "{6BB5F8EF-4483-11D3-8BCF-00C04F8EC28C}" && proj.Kind != "{66A26720-8FB5-11D2-AA7E-00C04F688DDE}")
+                {
+                    //如遇文件夹则遍历一次(为减少复杂度,只遍历一层深度)
+                    CommonSettings.VSProjects.Add(proj.Name, proj.Name);
+                }
+                else
+                {
+
+                    //文件夹,对文件夹再一次遍历获取某文件夹下所有的子文件,并且拼接路径
+                    SetAllProjectFromFolder(proj);
+                }
             }
 
-            DirectoryInfo di = new DirectoryInfo("CodeTemplate");
+
+            DirectoryInfo di = new DirectoryInfo(ContentRootPath + "CodeTemplate");
             foreach (var dir in di.GetDirectories())
             {
                 CommonSettings.TProjects.Add(dir.Name, dir.Name);
@@ -110,11 +129,25 @@ namespace VSIXProject4
             CommonSettings.CurrProjectDir = Path.GetDirectoryName(dte.Solution.FullName);
 
             //传递项目文件,上次登录配置到这个界面
-            LoginForm lf = new LoginForm();
-            //点击生成按钮时触发
-            lf.Generate += Lf_Generate;
-            lf.Show();
+            if (SingleLoginForm == null || SingleLoginForm.IsDisposed)
+            {
+                SingleLoginForm = new LoginForm();
+                //点击生成按钮时触发
+                SingleLoginForm.Generate += Lf_Generate;
+            }
+            SingleLoginForm.Show();
 
+        }
+
+        private void SetAllProjectFromFolder(Project proj)
+        {
+            foreach (ProjectItem p in proj.ProjectItems)
+            {//如果projectitem为空,则说明该元素是一个"项目",否则依然还是一个文件夹,则需要继续遍历(为避免复杂度,只支持一层)
+                if (p.SubProject != null && p.ProjectItems == null && p.Kind != "{6BB5F8EF-4483-11D3-8BCF-00C04F8EC28C}")
+                {
+                    CommonSettings.VSProjects.Add(proj.Name + "\\" + p.Name, p.Name);
+                }
+            }
         }
 
         /// <summary>
@@ -123,15 +156,22 @@ namespace VSIXProject4
         /// <param name="TableNames">表名</param>
         /// <param name="dict">模板-项目对应</param>
         /// <returns></returns>
-        private bool Lf_Generate(List<Tuple<string, string>> TableNames, Dictionary<string, string> dict)
+        private async Task<bool> Lf_Generate(List<Tuple<string, string>> TableNames, Dictionary<string, string> dict, IProgress<int> progress)
         {
-            string templateFilePath = System.IO.Path.GetFullPath("CodeTemplate");
-            string bakPath = System.IO.Path.GetFullPath("CodeGen_" + DateTime.Now.ToString("yyyyMMddhhmmss"));
+            string templateFilePath = System.IO.Path.GetFullPath(ContentRootPath + "CodeTemplate");
+            string bakPath = System.IO.Path.GetFullPath(ContentRootPath + "CodeGen_" + DateTime.Now.ToString("yyyyMMddhhmmss"));
+
+            progress.Report(1);
             //1.复制文件模板
-            foreach (var tbname in TableNames)
+            await System.Threading.Tasks.Task.Run(new Action(() =>
             {
-                CopyDir(templateFilePath, bakPath, tbname.Item1);
-            }
+                foreach (var tbname in TableNames)
+                {
+                    CopyDir(templateFilePath, bakPath, tbname.Item1);
+                }
+            }));
+            progress.Report(2);
+
 
             foreach (var fulldir in Directory.GetDirectories(bakPath))
             {
@@ -142,9 +182,10 @@ namespace VSIXProject4
                     var files = Directory.GetFiles(fulldir, "*.*", SearchOption.AllDirectories);
                     var fileList = files.ToList<string>();
                     //3.加入项目
-                    EnvDTEHelper.AddFilesToProject(dict[dirname], fileList, bakPath + "\\" + dirname, this.ServiceProvider);
+                    await System.Threading.Tasks.Task.Run(new Action(() => { EnvDTEHelper.AddFilesToProject(dict[dirname], fileList, bakPath + "\\" + dirname, this.ServiceProvider); }));
                 }
             }
+            progress.Report(3);
 
             return true;
         }

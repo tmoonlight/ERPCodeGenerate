@@ -30,15 +30,34 @@ namespace VSIXProject4
                 {
                     foreach (EnvDTE.Project item in dte.Solution.Projects)
                     {
+                        string[] projectNames = projectName.Split('\\');
 
-                        if (item.Name.Trim()==projectName.Trim())
+                        if (item.Name.Trim()== projectNames[0].Trim())
                         {
-                            
-                            foreach (string file in files)
+                            //如果是目录则再进行一次遍历
+                            if (projectNames.Length > 1)
                             {
-                                string dir = Path.GetDirectoryName(file);
-                                //复制单个文件到项目目录,中间如果不存在路径中的文件则创建文件夹
-                                CopyFileToPath(file, dir.Replace(rootPath , ""), item);
+                                foreach (ProjectItem pitem in item.ProjectItems)
+                                {
+                                    if (pitem.Name.Trim() == projectNames[1].Trim())
+                                    {
+                                        foreach (string file in files)
+                                        {
+                                            string dir = Path.GetDirectoryName(file);
+                                            //复制单个文件到项目目录,中间如果不存在路径中的文件则创建文件夹
+                                            CopyFileToPath(file, dir.Replace(rootPath, ""), pitem.SubProject);
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (string file in files)
+                                {
+                                    string dir = Path.GetDirectoryName(file);
+                                    //复制单个文件到项目目录,中间如果不存在路径中的文件则创建文件夹
+                                    CopyFileToPath(file, dir.Replace(rootPath, ""), item);
+                                }
                             }
                         }
                     }
@@ -46,6 +65,72 @@ namespace VSIXProject4
             }
             finally
             {
+            }
+        }
+
+        /// <summary>
+        /// 将文件添加到某个project的特定路径
+        /// </summary>
+        /// <param name="fileName">文件的全路径</param>
+        /// <param name="projectPath">相对项目的路径</param>
+        /// <param name="project">项目对象</param>
+        private static void CopyFileToPathForProjectItem(string filefullPath, string projectPath, EnvDTE.ProjectItem project)
+        {
+            Project pContainer = project.ContainingProject;
+            //分拆目标目录用来遍历
+            string[] pathArray = projectPath.Replace(pContainer.Name, "").Split('\\');
+
+            //当前遍历指针所指向的项,如果为空则为项目.
+            ProjectItem curProjectItem = null;
+            foreach (var dir in pathArray)
+            {
+                if (dir.Trim() == "") continue;
+                int ContainProjectflag = 0;
+                var ooo = pContainer.ProjectItems;
+                var ooo1 = pContainer.Name;
+                //project.ProjectItems
+                foreach (ProjectItem item in pContainer.ProjectItems)
+                {
+                    //如果包含该文件夹则进入下一层
+                    if (item.GetType().Name == "OAFolderItem" && item.Name == dir)
+                    {
+                        ContainProjectflag = 1;
+                        //指定当前目录指针为遍历到的目录
+                        curProjectItem = item;
+                        break;
+                    }
+                }
+                //如果不包含该目录则新建一个,且指定当前目录指针为该目录
+                if (ContainProjectflag == 0)
+                {
+                    if (curProjectItem == null)
+                    {
+                        //项目flag
+                        curProjectItem = project.SubProject.ProjectItems.AddFolder(dir);
+                    }
+                    else
+                    {
+                        curProjectItem = curProjectItem.ProjectItems.AddFolder(dir);
+                    }
+                }
+                
+            }
+
+            try
+            {
+              //为当前目录指针指向的的目录加入文件
+              if (curProjectItem == null)
+              {
+                  project.ProjectItems.AddFromFileCopy(filefullPath);
+              }
+              else
+              {
+                  curProjectItem.ProjectItems.AddFromFileCopy(filefullPath);
+              }
+            }
+            catch
+            {
+
             }
         }
 
@@ -70,7 +155,7 @@ namespace VSIXProject4
                 foreach (ProjectItem item in project.ProjectItems)
                 {
                     //如果包含该文件夹则进入下一层
-                    if (item.GetType().Name == "OAFolderItem" && item.Name == dir)
+                    if (/*item.Kind == "{66A26720-8FB5-11D2-AA7E-00C04F688DDE}" && */item.Name == dir)
                     {
                         ContainProjectflag = 1;
                         //指定当前目录指针为遍历到的目录
@@ -91,11 +176,11 @@ namespace VSIXProject4
                         curProjectItem = curProjectItem.ProjectItems.AddFolder(dir);
                     }
                 }
-                
+
             }
 
-            //try
-            //{
+            try
+            {
                 //为当前目录指针指向的的目录加入文件
                 if (curProjectItem == null)
                 {
@@ -105,11 +190,11 @@ namespace VSIXProject4
                 {
                     curProjectItem.ProjectItems.AddFromFileCopy(filefullPath);
                 }
-            //}
-            //catch
-            //{
+            }
+            catch
+            {
 
-            //}
+            }
         }
 
 

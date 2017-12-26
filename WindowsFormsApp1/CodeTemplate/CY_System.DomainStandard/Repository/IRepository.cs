@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CY_System.CodeBuilder.CodeTemplate.CY_System.DomainStandard.Repository
 {
-    class Class1
+    class IRepository
     {
     }
 }

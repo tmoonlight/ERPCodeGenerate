@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmGenerator));
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnGenterate = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.label1 = new System.Windows.Forms.Label();
@@ -54,15 +54,16 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.button2 = new System.Windows.Forms.Button();
+            this.btnClose = new System.Windows.Forms.Button();
             this.panel3 = new System.Windows.Forms.Panel();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.button3 = new System.Windows.Forms.Button();
             this.trvDBInfo = new System.Windows.Forms.TreeView();
             this.btnChangeDbConn = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitter1 = new System.Windows.Forms.Splitter();
+            this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -74,15 +75,15 @@
             this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // button1
+            // btnGenterate
             // 
-            this.button1.Location = new System.Drawing.Point(535, 466);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(100, 46);
-            this.button1.TabIndex = 9;
-            this.button1.Text = "生成";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.btnGenterate.Location = new System.Drawing.Point(535, 466);
+            this.btnGenterate.Name = "btnGenterate";
+            this.btnGenterate.Size = new System.Drawing.Size(100, 46);
+            this.btnGenterate.TabIndex = 9;
+            this.btnGenterate.Text = "生成";
+            this.btnGenterate.UseVisualStyleBackColor = true;
+            this.btnGenterate.Click += new System.EventHandler(this.button1_Click);
             // 
             // checkBox1
             // 
@@ -138,6 +139,7 @@
             // 
             this.tbxDTOName.Location = new System.Drawing.Point(20, 110);
             this.tbxDTOName.Name = "tbxDTOName";
+            this.tbxDTOName.ReadOnly = true;
             this.tbxDTOName.Size = new System.Drawing.Size(543, 21);
             this.tbxDTOName.TabIndex = 16;
             // 
@@ -314,6 +316,7 @@
             // 
             this.tbxSolutionDir.Location = new System.Drawing.Point(21, 55);
             this.tbxSolutionDir.Name = "tbxSolutionDir";
+            this.tbxSolutionDir.ReadOnly = true;
             this.tbxSolutionDir.Size = new System.Drawing.Size(543, 21);
             this.tbxSolutionDir.TabIndex = 11;
             this.tbxSolutionDir.Text = "{SolutionDirectory}";
@@ -340,6 +343,7 @@
             // radioButton2
             // 
             this.radioButton2.AutoSize = true;
+            this.radioButton2.Enabled = false;
             this.radioButton2.Location = new System.Drawing.Point(102, 14);
             this.radioButton2.Name = "radioButton2";
             this.radioButton2.Size = new System.Drawing.Size(107, 16);
@@ -351,6 +355,7 @@
             // radioButton1
             // 
             this.radioButton1.AutoSize = true;
+            this.radioButton1.Enabled = false;
             this.radioButton1.Location = new System.Drawing.Point(13, 14);
             this.radioButton1.Name = "radioButton1";
             this.radioButton1.Size = new System.Drawing.Size(71, 16);
@@ -359,14 +364,14 @@
             this.radioButton1.Text = "POCO=DTO";
             this.radioButton1.UseVisualStyleBackColor = true;
             // 
-            // button2
+            // btnClose
             // 
-            this.button2.Location = new System.Drawing.Point(429, 466);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(100, 46);
-            this.button2.TabIndex = 23;
-            this.button2.Text = "类型映射表";
-            this.button2.UseVisualStyleBackColor = true;
+            this.btnClose.Location = new System.Drawing.Point(429, 466);
+            this.btnClose.Name = "btnClose";
+            this.btnClose.Size = new System.Drawing.Size(100, 46);
+            this.btnClose.TabIndex = 23;
+            this.btnClose.Text = "关闭";
+            this.btnClose.UseVisualStyleBackColor = true;
             // 
             // panel3
             // 
@@ -379,7 +384,9 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1});
+            this.toolStripStatusLabel1,
+            this.toolStripProgressBar1,
+            this.toolStripStatusLabel2});
             this.statusStrip1.Location = new System.Drawing.Point(0, 524);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(990, 22);
@@ -392,15 +399,6 @@
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(35, 17);
             this.toolStripStatusLabel1.Text = "耗时:";
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(323, 466);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(100, 46);
-            this.button3.TabIndex = 26;
-            this.button3.Text = "模板更新";
-            this.button3.UseVisualStyleBackColor = true;
             // 
             // trvDBInfo
             // 
@@ -442,9 +440,8 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.button3);
-            this.splitContainer1.Panel2.Controls.Add(this.button2);
-            this.splitContainer1.Panel2.Controls.Add(this.button1);
+            this.splitContainer1.Panel2.Controls.Add(this.btnClose);
+            this.splitContainer1.Panel2.Controls.Add(this.btnGenterate);
             this.splitContainer1.Panel2.Controls.Add(this.splitter1);
             this.splitContainer1.Panel2.Controls.Add(this.groupBox2);
             this.splitContainer1.Panel2.Controls.Add(this.groupBox1);
@@ -462,6 +459,19 @@
             this.splitter1.Size = new System.Drawing.Size(2, 504);
             this.splitter1.TabIndex = 27;
             this.splitter1.TabStop = false;
+            // 
+            // toolStripStatusLabel2
+            // 
+            this.toolStripStatusLabel2.Margin = new System.Windows.Forms.Padding(1, 3, 0, 2);
+            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(131, 17);
+            this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
+            this.toolStripStatusLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // toolStripProgressBar1
+            // 
+            this.toolStripProgressBar1.Name = "toolStripProgressBar1";
+            this.toolStripProgressBar1.Size = new System.Drawing.Size(100, 16);
             // 
             // frmGenerator
             // 
@@ -496,7 +506,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnGenterate;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label3;
@@ -509,11 +519,10 @@
         private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.RadioButton radioButton1;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-        private System.Windows.Forms.Button button3;
         private System.Windows.Forms.ImageList imageList1;
         private System.Windows.Forms.CheckBox checkBox5;
         private System.Windows.Forms.TextBox tbxSolutionDir;
@@ -529,6 +538,8 @@
         private System.Windows.Forms.Button btnChangeDbConn;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.Splitter splitter1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
+        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
     }
 }
 

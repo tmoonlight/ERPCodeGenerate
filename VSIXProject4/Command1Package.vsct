@@ -41,7 +41,7 @@
       </Group>
       <!--1.在右键菜单增加项-->
       <Group guid="guiItemNodeCmdSet" id="ItemNode" priority="0x0600">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_SOLNNODE" />
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_PROJNODE" />
       </Group>
     </Groups>
 
@@ -72,13 +72,20 @@
           <ButtonText>为此解决方案生成代码</ButtonText>
         </Strings>
       </Button>
-      <Button guid="guidCommand1PackageCmdSet" id="cmdidToolWindow1Command" priority="0x0100" type="Button">
+      <Button guid="guidCommand1PackageCmdSet2" id="Command1Id" priority="0x0100" type="Button">
+        <Parent guid="guiItemNodeCmdSet" id="ItemNode" />
+        <Icon guid="guidImages" id="bmpPicStrikethrough" />
+        <Strings>
+          <ButtonText>为此解决方案生成代码</ButtonText>
+        </Strings>
+      </Button>
+      <!--<Button guid="guidCommand1PackageCmdSet" id="cmdidToolWindow1Command" priority="0x0100" type="Button">
         <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
         <Icon guid="guidImages1" id="bmpPic1" />
         <Strings>
           <ButtonText>ToolWindow1</ButtonText>
         </Strings>
-      </Button>
+      </Button>-->
     </Buttons>
 
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
@@ -105,6 +112,12 @@
     
     <!-- This is the guid used to group the menu commands together -->
     <GuidSymbol name="guidCommand1PackageCmdSet" value="{981cc1f8-9093-4456-965b-11c1a3873e2b}">
+      <IDSymbol name="MyMenuGroup" value="0x1020" />
+      <IDSymbol name="Command1Id" value="0x0100" />
+      <IDSymbol value="4129" name="cmdidToolWindow1Command" />
+     
+    </GuidSymbol>
+    <GuidSymbol name="guidCommand1PackageCmdSet2" value="{981cc1f8-9093-4456-965b-11c1a3873e2b}">
       <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="Command1Id" value="0x0100" />
       <IDSymbol value="4129" name="cmdidToolWindow1Command" />

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CY_System.VSPlugin.CodeHelper")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("创业印章ERP代码生成器")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("CY_System.VSPlugin.CodeHelper")]
