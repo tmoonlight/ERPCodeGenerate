@@ -166,7 +166,7 @@ namespace VSIXProject4
             string bakPath = System.IO.Path.GetFullPath(ContentRootPath + "CodeGen_" + DateTime.Now.ToString("yyyyMMddhhmmss"));
 
             progress.Report(1);
-            //1.复制文件模板
+            //1.复制文件模板,并套用模板到备份地址
             await System.Threading.Tasks.Task.Run(new Action(() =>
             {
                 foreach (var tbname in TableNames)
@@ -185,12 +185,7 @@ namespace VSIXProject4
 
                     var files = Directory.GetFiles(fulldir, "*.*", SearchOption.AllDirectories);
                     var fileList = files.ToList<string>();
-                    //foreach (string f in fileList)
-                    //{
-                    //    string strContent = File.ReadAllText(f);
-                    //    File.WriteAllText(f, strContent);
-                    //}
-                    //3.加入项目
+                    //2.将文件从备份地址加入项目
                     await System.Threading.Tasks.Task.Run(new Action(() => { EnvDTEHelper.AddFilesToProject(dict[dirname], fileList, bakPath + "\\" + dirname, this.ServiceProvider); }));
                 }
             }
@@ -216,12 +211,12 @@ namespace VSIXProject4
             DataTable tableInfo = SQLServerDBHelper.GetTableInfo(tableConnectionString, tableName);
             //string 
             string fieldCode = GenerateFieldCode(tableInfo);
-            //Now Create all of the directories
+            //创建所有文件夹
             foreach (string dirPath in Directory.GetDirectories(SourcePath, "*",
                 SearchOption.AllDirectories))
                 Directory.CreateDirectory(dirPath.Replace(SourcePath, DestinationPath));
 
-            //Copy all the files & Replaces any files with the same name
+            //套用模板并且复制文件到新的备份目录
             foreach (string newPath in Directory.GetFiles(SourcePath, "*.*",
                 SearchOption.AllDirectories))
             {
@@ -239,7 +234,11 @@ namespace VSIXProject4
             }
         }
 
-
+        /// <summary>
+        /// 按表来生成poco实体列表
+        /// </summary>
+        /// <param name="table"></param>
+        /// <returns></returns>
         public static string GenerateFieldCode(DataTable table)
         {
             StringBuilder sbMethod = new StringBuilder();

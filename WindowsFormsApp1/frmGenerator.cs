@@ -358,7 +358,11 @@ namespace CY_System.CodeBuilder
         private void trvDBInfo_AfterCheck(object sender, TreeViewEventArgs e)
         {
             string checkedTableName = e.Node.Text;
-            string checkedModelName = e.Node.Text.Replace("ca_", "");
+
+            var nameParts = e.Node.Text.Split('_');
+
+            //默认取第二段下划线之后的串
+            string checkedModelName = nameParts.Length > 1 ? nameParts[1] : nameParts[0]; //e.Node.Text.Replace("ca_", "");
 
             if (e.Node.Checked)
             {

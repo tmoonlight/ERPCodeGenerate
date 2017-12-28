@@ -7,7 +7,7 @@ using System.Text;
 namespace CY_System.DomainStandard
 {
     /// <summary>
-	/// ##TableDescription##数据实体类
+	/// ##TableDescription##实体类
     /// 作者: ##Author##
     /// 时间: ##DateTime##
     /// </summary>
