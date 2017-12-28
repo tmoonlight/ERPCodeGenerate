@@ -15,16 +15,16 @@ using System.Dynamic;
 namespace CY_System.Service.Controllers.CA
 {
     /// <summary>
-    /// {订单}操作控制器
+    /// ##TableDescription##操作控制器
     /// </summary>
     [Produces("application/json")]
-    [Route("api/Order")]
-    public class OrderController : Controller//,IRepository<OrderInfo>
+    [Route("api/##ModelName##")]
+    public class ##ModelName##Controller : Controller
     {
-        //{订单}仓库
-        private OrderRepository repository = new OrderRepository();
+        //##TableDescription##仓库
+        private ##ModelName##Repository repository = new ##ModelName##Repository();
         /// <summary>
-        /// 判断{订单}是否存在
+        /// 判断##TableDescription##是否存在
         /// </summary>
         /// <param name="m_id"></param>
         /// <returns></returns>
@@ -36,32 +36,32 @@ namespace CY_System.Service.Controllers.CA
         }
 
         /// <summary>
-        /// 新增{订单}
+        /// 新增##TableDescription##
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("Add")]
-        public int Add(OrderDto model)
+        public int Add(##ModelName##Dto model)
         {
-            OrderInfo dto = model.MapTo<OrderInfo>();
+            ##ModelName##Info dto = model.MapTo<##ModelName##Info>();
             return repository.Add(dto);
         }
 
         /// <summary>
-        /// 修改{订单}字段
+        /// 修改##TableDescription##字段
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("Update")]
-        public int Update(OrderDto model)
+        public int Update(##ModelName##Dto model)
         {
-            return repository.Update(model.MapTo<OrderInfo>());
+            return repository.Update(model.MapTo<##ModelName##Info>());
         }
 
         /// <summary>
-        /// 删除{订单},物理删除.
+        /// 删除##TableDescription##,物理删除.
         /// </summary>
         /// <param name="m_id"></param>
         /// <returns></returns>
@@ -73,19 +73,19 @@ namespace CY_System.Service.Controllers.CA
         }
 
         /// <summary>
-        /// 查询单个{订单}实体
+        /// 查询单个##TableDescription##实体
         /// </summary>
         /// <param name="m_id"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("SelectModel/{m_id}")]
-        public OrderDto SelectModel(Guid m_id)
+        public ##ModelName##Dto SelectModel(Guid m_id)
         {
-            return repository.SelectModel(m_id).MapTo<OrderDto>();
+            return repository.SelectModel(m_id).MapTo<##ModelName##Dto>();
         }
 
         /// <summary>
-        /// 查询{订单}列表
+        /// 查询##TableDescription##列表
         /// </summary>
         /// <param name="predicateExpression"></param>
         /// <response code="205">查不到任何数据</response>
@@ -93,17 +93,17 @@ namespace CY_System.Service.Controllers.CA
         [HttpGet]
         [Route("SelectList")]
         [ProducesResponseType(205)]
-        [ProducesResponseType(typeof(IEnumerable<OrderDto>), 200)]
-        public IEnumerable<OrderDto> SelectList(string predicateExpression)
+        [ProducesResponseType(typeof(IEnumerable<##ModelName##Dto>), 200)]
+        public IEnumerable<##ModelName##Dto> SelectList(string predicateExpression)
         {
             int nouseint = 0;
             //最大10条
-            IEnumerable<OrderInfo> result = repository.SelectByPaged(null, 10, 1, out nouseint, "ID", true);
-            return result.MapToList<OrderInfo, OrderDto>();
+            IEnumerable<##ModelName##Info> result = repository.SelectByPaged(null, 10, 1, out nouseint, "ID", true);
+            return result.MapToList<##ModelName##Info, ##ModelName##Dto>();
         }
 
         /// <summary>
-        /// {订单}
+        /// ##TableDescription##
         /// </summary>
         /// <param name="pageSize"></param>
         /// <param name="pageIndex"></param>
@@ -113,12 +113,12 @@ namespace CY_System.Service.Controllers.CA
         [HttpGet]
         [Route("SelectByPaged")]
         [ProducesResponseType(205)]
-        [ProducesResponseType(typeof(IEnumerable<OrderDto>), 200)]
-        public PagedDto<OrderDto> SelectByPaged(int pageSize, int pageIndex, string strSort, bool bAsc)
+        [ProducesResponseType(typeof(IEnumerable<##ModelName##Dto>), 200)]
+        public PagedDto<##ModelName##Dto> SelectByPaged(int pageSize, int pageIndex, string strSort, bool bAsc)
         {
             int pageCount = 0;
-            PagedDto<OrderDto> dto = new PagedDto<OrderDto>();
-            dto.Data = repository.SelectByPaged(null, pageSize, pageIndex, out pageCount, strSort, bAsc).MapToList<OrderInfo, OrderDto>().ToList();
+            PagedDto<##ModelName##Dto> dto = new PagedDto<##ModelName##Dto>();
+            dto.Data = repository.SelectByPaged(null, pageSize, pageIndex, out pageCount, strSort, bAsc).MapToList<##ModelName##Info, ##ModelName##Dto>().ToList();
             dto.PageCount = pageCount;
             return dto;
         }

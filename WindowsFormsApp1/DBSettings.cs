@@ -13,6 +13,7 @@ namespace CY_System.CodeBuilder
 
         #region 生成代码的信息储存
         static Dictionary<string, string> selectTables = new Dictionary<string, string>();
+
         /// <summary>
         /// 选中的表格
         /// </summary>
@@ -21,6 +22,14 @@ namespace CY_System.CodeBuilder
             get { return selectTables; }
             set { selectTables = value; }
         }
+
+
+        static Dictionary<string, string> selectModels = new Dictionary<string, string>();
+        /// <summary>
+        /// 选中的实体-表对应关系
+        /// </summary>
+        public static Dictionary<string, string> SelectTableModels { get => selectModels; set => selectModels = value; }
+
 
         static string selectDataBase = "";
         /// <summary>
@@ -50,6 +59,9 @@ namespace CY_System.CodeBuilder
         {
             get { return dataBaseConfigList; }
         }
+
+        
+
         /// <summary>
         /// 将数据库信息添加到列表中
         /// </summary>

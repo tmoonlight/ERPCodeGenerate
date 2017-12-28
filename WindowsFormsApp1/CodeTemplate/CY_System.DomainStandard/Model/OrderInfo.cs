@@ -14,7 +14,7 @@ namespace CY_System.DomainStandard
     [POCO(DbConnName = CY_SystemConsts.ConnectionString_conn_ca, TableName = "##TableName##")]
     public class ##ModelName##Info
     {
-		##Fields##
+##Fields##
     }
 }
 

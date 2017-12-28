@@ -13,36 +13,37 @@ using CY_System.Service.Dto;
 namespace CY_System.BLL.MigrateBLL
 {
     /// <summary>
-    /// 业务逻辑类,该段代码由代码生成器自动生成
-    /// 时间：{DateTime}
+    /// ##TableDescription##业务逻辑类,该段代码由代码生成器自动生成
+    /// 作者: ##Author##
+    /// 时间: ##DateTime##
     /// </summary>
-    public class OrderBLL
+    public class ##ModelName##BLL
     {
-        private RestClient _orderServiceClient;
-        private RestClient OrderServiceClient
+        private RestClient _##ModelName##ServiceClient;
+        private RestClient ##ModelName##ServiceClient
         {
             get
             {
-                if (_orderServiceClient == null)
+                if (_##ModelName##ServiceClient == null)
                 {
-                    //url 示例 :http://localhost:8076/api/Order
-                    _orderServiceClient = new RestClient(ConfigurationManager.AppSettings["WebApiURL"] + "Order/");
-                    _orderServiceClient.Timeout = int.Parse(ConfigurationManager.AppSettings["WebApiTimeOut"]);
+                    //url 示例 :http://localhost:8076/api/##ModelName##
+                    _##ModelName##ServiceClient = new RestClient(ConfigurationManager.AppSettings["WebApiURL"] + "##ModelName##/");
+                    _##ModelName##ServiceClient.Timeout = int.Parse(ConfigurationManager.AppSettings["WebApiTimeOut"]);
                 }
-                return _orderServiceClient;
+                return _##ModelName##ServiceClient;
             }
         }
 
         /// <summary>
         /// 声明全局接口或类
         /// </summary>
-        private static OrderBLL _instance = new OrderBLL();
+        private static ##ModelName##BLL _instance = new ##ModelName##BLL();
 
         /// <summary>
         /// 外部接口获取实例
         /// </summary>
         /// <returns></returns>
-        public static OrderBLL GetInstance()
+        public static ##ModelName##BLL GetInstance()
         {
             return _instance;
         }
@@ -52,37 +53,37 @@ namespace CY_System.BLL.MigrateBLL
         /// </summary>
         /// <param name="model">要往数据库中的添加的实体对象</param>
         /// <returns>结果</returns>
-        public int Add(OrderDto model)
+        public int Add(##ModelName##Dto model)
         {
             RestRequest req = new RestRequest("Add", Method.POST);
             req.AddObject(model);
-            var res = OrderServiceClient.Execute(req);
+            var res = ##ModelName##ServiceClient.Execute(req);
             if (res.ErrorMessage != null) throw new Exception(res.ErrorMessage);
             return int.Parse(res.Content);
         }
 
         /// <summary>
-        /// 更新一条记录
+        /// 更新一条##ModelName##记录
         /// </summary>
         /// <param name="model">需要更新的数据</param>
         /// <returns>更新结果</returns>
-        public int Update(OrderDto model)
+        public int Update(##ModelName##Dto model)
         {
             RestRequest req = new RestRequest("Update", Method.POST); 
             req.AddObject(model);
-            var res = OrderServiceClient.Execute(req);
+            var res = ##ModelName##ServiceClient.Execute(req);
             return int.Parse(res.Content);
         }
 
         /// <summary>
-        /// 获取一条订单记录
+        /// 获取一条##ModelName##记录
         /// </summary>
         /// <param name="m_id"></param>
         /// <returns></returns>
-        public OrderDto SelectModel(Guid m_id)
+        public ##ModelName##Dto SelectModel(Guid m_id)
         {
             RestRequest req = new RestRequest("SelectModel/" + m_id.ToString(), Method.GET);
-            var res = OrderServiceClient.Execute<OrderDto>(req);
+            var res = ##ModelName##ServiceClient.Execute<##ModelName##Dto>(req);
             if (res.ErrorMessage != null) throw new Exception(res.ErrorMessage);
             return res.Data;
         }
@@ -96,26 +97,26 @@ namespace CY_System.BLL.MigrateBLL
         public int Delete(Guid m_id)
         {
             RestRequest req = new RestRequest("Delete/" + m_id.ToString(), Method.DELETE);
-            var res = OrderServiceClient.Execute(req);
+            var res = ##ModelName##ServiceClient.Execute(req);
             if (res.ErrorMessage != null) throw new Exception(res.ErrorMessage);
             return int.Parse(res.Content);
         }
 
         /// <summary>
-        /// 根据条件查询实体记录
+        /// 根据条件查询##ModelName##记录
         /// </summary>
         /// <param name="strWhere">查询条件</param>
         /// <returns>实体记录</returns>
-        public List<OrderDto> SelectList()
+        public List<##ModelName##Dto> SelectList()
         {
             RestRequest req = new RestRequest("SelectList", Method.GET);
-            var res = OrderServiceClient.Execute<List<OrderDto>>(req);
+            var res = ##ModelName##ServiceClient.Execute<List<##ModelName##Dto>>(req);
             if (res.ErrorMessage != null) throw new Exception(res.ErrorMessage);
             return res.Data;
         }
 
         /// <summary>
-        /// 分页查询
+        /// 分页查询##ModelName##
         /// </summary>
         /// <param name="strWhere">查询条件</param>
         /// <param name="pageSize">页面显示的行数</param>
@@ -124,14 +125,14 @@ namespace CY_System.BLL.MigrateBLL
         /// <param name="strSort">排序字段</param>
         /// <param name="bAsc">升序或降序</param>
         /// <returns>根据分页查询的数据</returns>
-        public List<OrderDto> SelectByPaged(int pageSize, int pageIndex, out int pageCount, string strSort, bool bAsc)
+        public List<##ModelName##Dto> SelectByPaged(int pageSize, int pageIndex, out int pageCount, string strSort, bool bAsc)
         {
             RestRequest req = new RestRequest("SelectByPaged", Method.GET);
             req.AddParameter("pageSize", pageSize);
             req.AddParameter("pageIndex", pageIndex);
             req.AddParameter("strSort", strSort);
             req.AddParameter("bAsc", bAsc);
-            var res = OrderServiceClient.Execute<PagedDto<OrderDto>>(req);
+            var res = ##ModelName##ServiceClient.Execute<PagedDto<##ModelName##Dto>>(req);
             if (res.ErrorMessage != null) throw new Exception(res.ErrorMessage);
             var returnedData = res.Data;
             pageCount = returnedData.PageCount;

@@ -10,6 +10,10 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Data;
+using CodeBuilder;
+using System.Text;
+using System.Net;
 
 namespace VSIXProject4
 {
@@ -156,7 +160,7 @@ namespace VSIXProject4
         /// <param name="TableNames">表名</param>
         /// <param name="dict">模板-项目对应</param>
         /// <returns></returns>
-        private async Task<bool> Lf_Generate(List<Tuple<string, string>> TableNames, Dictionary<string, string> dict, IProgress<int> progress)
+        private async Task<bool> Lf_Generate(List<Tuple<string, string, string>> TableNames, Dictionary<string, string> dict, IProgress<int> progress)
         {
             string templateFilePath = System.IO.Path.GetFullPath(ContentRootPath + "CodeTemplate");
             string bakPath = System.IO.Path.GetFullPath(ContentRootPath + "CodeGen_" + DateTime.Now.ToString("yyyyMMddhhmmss"));
@@ -167,7 +171,7 @@ namespace VSIXProject4
             {
                 foreach (var tbname in TableNames)
                 {
-                    CopyDir(templateFilePath, bakPath, tbname.Item1);
+                    GenerateCodesInDir(templateFilePath, bakPath, tbname);
                 }
             }));
             progress.Report(2);
@@ -178,9 +182,14 @@ namespace VSIXProject4
                 var dirname = Path.GetFileName(fulldir);
                 if (dict.ContainsKey(dirname))
                 {
-                    //2.套用文件
+
                     var files = Directory.GetFiles(fulldir, "*.*", SearchOption.AllDirectories);
                     var fileList = files.ToList<string>();
+                    //foreach (string f in fileList)
+                    //{
+                    //    string strContent = File.ReadAllText(f);
+                    //    File.WriteAllText(f, strContent);
+                    //}
                     //3.加入项目
                     await System.Threading.Tasks.Task.Run(new Action(() => { EnvDTEHelper.AddFilesToProject(dict[dirname], fileList, bakPath + "\\" + dirname, this.ServiceProvider); }));
                 }
@@ -193,13 +202,20 @@ namespace VSIXProject4
 
 
         /// <summary>
-        /// 复制文件夹
+        /// 将某个表相关的整个模板加入参数进行生成
         /// </summary>
         /// <param name="SourcePath"></param>
         /// <param name="DestinationPath"></param>
         /// <param name="TableName"></param>
-        public static void CopyDir(string SourcePath, string DestinationPath, string TableName)
+        public static void GenerateCodesInDir(string SourcePath, string DestinationPath, Tuple<string, string, string> t3)
         {
+            string tableName = t3.Item1;
+            string tableConnectionString = t3.Item2;
+            string tableModel = t3.Item3;
+            string tableDescription = t3.Item3;
+            DataTable tableInfo = SQLServerDBHelper.GetTableInfo(tableConnectionString, tableName);
+            //string 
+            string fieldCode = GenerateFieldCode(tableInfo);
             //Now Create all of the directories
             foreach (string dirPath in Directory.GetDirectories(SourcePath, "*",
                 SearchOption.AllDirectories))
@@ -209,13 +225,57 @@ namespace VSIXProject4
             foreach (string newPath in Directory.GetFiles(SourcePath, "*.*",
                 SearchOption.AllDirectories))
             {
-                //文件模板应用
+                //文件模板套用
                 string content = File.ReadAllText(newPath);
-                File.WriteAllText(newPath.Replace(SourcePath, DestinationPath).Replace("Order", TableName)
+                content = content.Replace("##Author##", Dns.GetHostName())
+                    .Replace("##DateTime##", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))
+                    .Replace("##TableDescription##", tableModel)
+                    .Replace("##ModelName##", tableModel)
+                    .Replace("##Fields##", fieldCode)
+                    .Replace("##TableName##", tableName);
+                //替换文件名
+                File.WriteAllText(newPath.Replace(SourcePath, DestinationPath).Replace("Order", tableModel)
                         .Replace(".template", ".cs"), content);
             }
         }
 
 
+        public static string GenerateFieldCode(DataTable table)
+        {
+            StringBuilder sbMethod = new StringBuilder();
+            foreach (DataRow _DataRow in table.Rows)
+            {
+                string _colomnType = CommonMaker.GetType(_DataRow["TypeName"].ToString());
+                _colomnType = _colomnType != "string" ? _colomnType + "?" : _colomnType;
+                string _colomnName = _DataRow["ColumnName"].ToString();
+                string _colomnNameUpper = _colomnName;
+                string _colomnNameLower = _colomnName.ToLower();
+
+                //sbProperty.AppendLine("        protected " + _colomnType + " m_" + _colomnNameLower + ";");
+
+                sbMethod.AppendLine("        /// <summary>");
+                sbMethod.AppendLine(string.Format("        /// {0}", _DataRow["deText"].ToString()==""? _DataRow["ColumnName"]+"属性" : _DataRow["deText"].ToString()));
+                sbMethod.AppendLine("        /// <summary>");
+                //sbMethod.AppendLine("        [DataMember]");
+                //sbMethod.Append("        [EntityField(");
+
+                //if (_DataRow["isPK"].ToString() == "√")
+                //{
+                //    sbMethod.Append("IsKey=true, ");
+                //}
+                //sbMethod.Append("DBType=System.Data.SqlDbType." + CommonMaker.GetEntityFieldTypeAndSize(_DataRow));
+                //sbMethod.AppendLine(")]");
+
+                sbMethod.AppendLine("        public " + _colomnType + " " + _colomnNameUpper + " { get; set; }");
+                sbMethod.AppendLine();
+
+            }
+
+
+            //builder.AppendLine("    }");
+            //builder.AppendLine("}");
+            //foreach
+            return sbMethod.ToString();
+        }
     }
 }

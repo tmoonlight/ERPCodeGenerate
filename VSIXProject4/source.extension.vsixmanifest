@@ -1,9 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="VSIXProject4.7a1009dc-c3c3-4141-8d4a-4db361f2ae76" Version="1.0" Language="zh-Hans" Publisher="Microsoft" />
+        <Identity Id="VSIXProject4.7a1009dc-c3c3-4141-8d4a-4db361f2ae76" Version="0.1" Language="zh-Hans" Publisher="CYYZ" />
         <DisplayName>创业印章ERP系统代码生成器</DisplayName>
         <Description xml:space="preserve">用来生成符合DDD分层架构的代码.</Description>
+        <Icon>logo.jpg</Icon>
     </Metadata>
     <Installation>
         <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0]" />

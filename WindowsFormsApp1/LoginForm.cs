@@ -264,7 +264,7 @@ namespace CY_System.CodeBuilder
 
         public event GenerateHandler Generate;
 
-        public delegate Task<bool> GenerateHandler(List<Tuple<string, string>> TableNames, Dictionary<string, string> dict, IProgress<int> progress);
+        public delegate Task<bool> GenerateHandler(List<Tuple<string, string,string>> TableNames, Dictionary<string, string> dict, IProgress<int> progress);
 
     }
 }

@@ -19,7 +19,7 @@ namespace CodeBuilder
         /// </summary>
         /// <param name="_type">SQLServer类型</param>
         /// <returns>转换后的C#.Net类型</returns>
-        internal static string GetType(string _type)
+        public static string GetType(string _type)
         {
             string _NumType = _type.ToLower();
             switch (_NumType)
@@ -70,7 +70,7 @@ namespace CodeBuilder
         /// <param name="_stringEditor">要处理的字符串</param>
         /// <param name="isUper">是否首字母大写</param>
         /// <returns>处理后的字符串</returns>
-        internal static string StringMaker(string _stringEditor, bool isUper)
+        public static string StringMaker(string _stringEditor, bool isUper)
         {
             string _result = string.Empty;
             char[] _temp = _stringEditor.ToCharArray();
@@ -379,7 +379,7 @@ namespace CodeBuilder
         /// </summary>
         /// <param name="_drEditor">受影响的行记录</param>
         /// <returns></returns>
-        internal static string GetEntityFieldTypeAndSize(DataRow _drEditor)
+        public static string GetEntityFieldTypeAndSize(DataRow _drEditor)
         {
             string _type = _drEditor["TypeName"].ToString();
             string _length = _drEditor["Length"].ToString();

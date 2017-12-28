@@ -96,26 +96,26 @@ namespace CY_System.CodeBuilder
 
             BindDicToDDL(ddlService, CommonSettings.VSProjects);
 
-
+            //这一块先写死,用来自动匹配当前项目名
             if (CommonSettings.VSProjects.ContainsKey("CY_System.BLL"))
             {
                 ddlBLL.SelectedItem = "CY_System.BLL";
             }
-            if (CommonSettings.VSProjects.ContainsKey("CY_System.DomainStandard"))
+            if (CommonSettings.VSProjects.ContainsKey("ForCore\\CY_System.DomainStandard"))
             {
-                ddlDomain.SelectedItem = "CY_System.DomainStandard";
+                ddlDomain.SelectedItem = "ForCore\\CY_System.DomainStandard";
             }
-            if (CommonSettings.VSProjects.ContainsKey("CY_System.Infrastructure"))
+            if (CommonSettings.VSProjects.ContainsKey("ForCore\\CY_System.Infrastructure"))
             {
-                ddlRepository.SelectedItem = "CY_System.Infrastructure";
+                ddlRepository.SelectedItem = "ForCore\\CY_System.Infrastructure";
             }
-            if (CommonSettings.VSProjects.ContainsKey("CY_System.Service"))
+            if (CommonSettings.VSProjects.ContainsKey("ForCore\\CY_System.Service"))
             {
-                ddlService.SelectedItem = "CY_System.Service";
+                ddlService.SelectedItem = "ForCore\\CY_System.Service";
             }
-            if (CommonSettings.VSProjects.ContainsKey("CY_System.Service.Dto.Shared"))
+            if (CommonSettings.VSProjects.ContainsKey("ForCore\\CY_System.Service.Dto.Shared"))
             {
-                ddlDTO.SelectedItem = "CY_System.Service.Dto.Shared";
+                ddlDTO.SelectedItem = "ForCore\\CY_System.Service.Dto.Shared";
             }
 
         }
@@ -132,7 +132,7 @@ namespace CY_System.CodeBuilder
         }
 
         /// <summary>
-        /// 加载
+        /// 加载所有数据表
         /// </summary>
         public void LoadData()
         {
@@ -201,7 +201,7 @@ namespace CY_System.CodeBuilder
                 TreeNode tnTable = new TreeNode();
                 tnTable.Text = tableRow[0].ToString();
                 tnTable.ImageIndex = 3;
-                tnTable.Tag = "Table";
+                tnTable.Tag = "Table|" + _DBConfig.ConString;
                 //tnTable.ContextMenuStrip = cmsForTable;
                 tnDataTables.Nodes.Add(tnTable);
             }
@@ -299,7 +299,7 @@ namespace CY_System.CodeBuilder
 
         public event GenerateHandler Generate;
 
-        public delegate Task<bool> GenerateHandler(List<Tuple<string, string>> tableNames, Dictionary<string, string> projects, IProgress<int> progress);
+        public delegate Task<bool> GenerateHandler(List<Tuple<string, string, string>> tableNames, Dictionary<string, string> projects, IProgress<int> progress);
         private async void button1_Click(object sender, EventArgs e)
         {
             btnGenterate.Enabled = false;
@@ -307,7 +307,8 @@ namespace CY_System.CodeBuilder
             //进度获取
             toolStripProgressBar1.Maximum = 3;// tableNames.Count;
             Progress<int> progress = new Progress<int>();
-            progress.ProgressChanged += (sd, intValue) => {
+            progress.ProgressChanged += (sd, intValue) =>
+            {
                 toolStripProgressBar1.Value = intValue;
             };
             await GenerateCodeFiles(progress);
@@ -315,6 +316,11 @@ namespace CY_System.CodeBuilder
             btnClose.Enabled = true;
         }
 
+        /// <summary>
+        /// 生成代码文件
+        /// </summary>
+        /// <param name="progInt"></param>
+        /// <returns></returns>
         private async Task GenerateCodeFiles(IProgress<int> progInt)
         {
             Stopwatch sw = new Stopwatch();
@@ -325,20 +331,22 @@ namespace CY_System.CodeBuilder
             loadingBox.StartPosition = FormStartPosition.CenterScreen;
             loadingBox.Show();
             Application.DoEvents();
-            //1表名 2连接字符串
-            List<Tuple<string, string>> list = new List<Tuple<string, string>>(10);
+            //1表名 2连接字符串 3实体名
+            List<Tuple<string, string, string>> list = new List<Tuple<string, string, string>>(10);
 
             //模板项目对应表
             //Dictionary<string, string> Template2Project = new Dictionary<string, string>(10);
 
             foreach (var str in DBSettings.SelectTables)
             {
-                list.Add(new Tuple<string, string>(str.Key, DBSettings.SelectConnectionString));
+                list.Add(new Tuple<string, string, string>(str.Key, str.Value, DBSettings.SelectTableModels[str.Key]));
             }
+
+
 
             //trvDBInfo.selected
             //事件emit
-            await Generate(list, GetTemplate2ProjectDict(),progInt);
+            await Generate(list, GetTemplate2ProjectDict(), progInt);
             loadingBox.Close();
             sw.Stop();
             toolStripStatusLabel1.Text = "耗时:" + sw.Elapsed.TotalSeconds.ToString("f4") + "秒";
@@ -349,29 +357,40 @@ namespace CY_System.CodeBuilder
 
         private void trvDBInfo_AfterCheck(object sender, TreeViewEventArgs e)
         {
+            string checkedTableName = e.Node.Text;
+            string checkedModelName = e.Node.Text.Replace("ca_", "");
+
             if (e.Node.Checked)
             {
-                if (!DBSettings.SelectTables.ContainsKey(e.Node.Text))
+                if (!DBSettings.SelectTables.ContainsKey(checkedTableName))
                 {
-                    DBSettings.SelectTables.Add(e.Node.Text, "1");
+                    DBSettings.SelectTables.Add(checkedTableName, e.Node.Tag.ToString().Split('|')[1]);
+
+                    //表名规则写在这里
+                    DBSettings.SelectTableModels.Add(checkedTableName, checkedModelName);
                 }
             }
             else
             {
-                if (DBSettings.SelectTables.ContainsKey(e.Node.Text))
+                if (DBSettings.SelectTables.ContainsKey(checkedTableName))
                 {
-                    DBSettings.SelectTables.Remove(e.Node.Text);
+                    DBSettings.SelectTables.Remove(checkedTableName);
+                    DBSettings.SelectTableModels.Remove(checkedTableName);
                 }
             }
 
-            List<string> tbString = new List<string>();
+            List<string> tbStringArray = new List<string>();
+            List<string> tbModelStringArray = new List<string>();
 
             foreach (var kv in DBSettings.SelectTables)
             {
-                tbString.Add(kv.Key);
+                tbStringArray.Add(kv.Key);
+                tbModelStringArray.Add(DBSettings.SelectTableModels[kv.Key]);
             }
-            string strTotal = string.Join(",", tbString);
+            string strTotal = string.Join(",", tbStringArray);
+            string strModels = string.Join(",", tbModelStringArray);
             tbxDTOName.Text = strTotal;
+            tbxModelName.Text = strModels;
 
         }
 
